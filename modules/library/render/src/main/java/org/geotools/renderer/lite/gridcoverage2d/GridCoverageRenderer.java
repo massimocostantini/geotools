@@ -47,6 +47,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.processing.CoverageProcessor;
 import org.geotools.coverage.processing.operation.Crop;
 import org.geotools.coverage.processing.operation.Resample;
@@ -366,6 +367,8 @@ public final class GridCoverageRenderer {
         // this prevents users from overriding lenient hint
         this.hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
         this.hints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
+        this.hints.add(new RenderingHints(Hints.COVERAGE_PROCESSING_VIEW,ViewType.SAME));
+        this.hints.add(new RenderingHints(JAI.KEY_TRANSFORM_ON_COLORMAP,Boolean.TRUE));        
 
     }
 
