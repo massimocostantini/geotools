@@ -365,10 +365,8 @@ public final class GridCoverageRenderer {
         if (hints != null)
             this.hints.add(hints);
         // this prevents users from overriding lenient hint
-        this.hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
-        this.hints.add(ImageUtilities.DONT_REPLACE_INDEX_COLOR_MODEL);
-        this.hints.add(new RenderingHints(Hints.COVERAGE_PROCESSING_VIEW,ViewType.SAME));
-        this.hints.add(new RenderingHints(JAI.KEY_TRANSFORM_ON_COLORMAP,Boolean.TRUE));        
+        this.hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);   
+        this.hints.put(Hints.COVERAGE_PROCESSING_VIEW, ViewType.SAME);
 
     }
 
@@ -805,10 +803,8 @@ public final class GridCoverageRenderer {
         final ImageLayout layout = new ImageLayout(finalImage);
         layout.setTileGridXOffset(0).setTileGridYOffset(0).setTileHeight(tileSizeY).setTileWidth(tileSizeX);
         final RenderingHints localHints = this.hints.clone(); 
-            localHints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout));
-        //add hints to preserve IndexColorModel
-        if(interpolation instanceof InterpolationNearest)
-            localHints.add(new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE));
+        localHints.add(new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout));
+
         //SG add hints for the border extender
         localHints.add(new RenderingHints(JAI.KEY_BORDER_EXTENDER,BorderExtender.createInstance(BorderExtender.BORDER_COPY)));
     	RenderedImage im=null;
