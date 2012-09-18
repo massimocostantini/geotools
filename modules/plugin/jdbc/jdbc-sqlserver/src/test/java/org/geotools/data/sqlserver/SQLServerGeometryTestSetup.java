@@ -37,7 +37,10 @@ public class SQLServerGeometryTestSetup extends JDBCGeometryTestSetup {
     public void setUp() throws Exception {
         super.setUp();
         runSafe("DROP TABLE GEOMETRY_COLUMNS");
+<<<<<<< HEAD
         runSafe("DROP TABLE gtmeta");
+=======
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
         // create the geometry columns
         run("CREATE TABLE GEOMETRY_COLUMNS(" + "F_TABLE_SCHEMA VARCHAR(30) NOT NULL,"
@@ -45,6 +48,7 @@ public class SQLServerGeometryTestSetup extends JDBCGeometryTestSetup {
                 + "COORD_DIMENSION INTEGER," + "SRID INTEGER NOT NULL,"
                 + "TYPE VARCHAR(30) NOT NULL," + ");");
 
+<<<<<<< HEAD
         String sql = "CREATE TABLE gtmeta (" 
                 + "id int IDENTITY(0,1) PRIMARY KEY, geom geometry, intProperty int , "
                 + "doubleProperty float, stringProperty varchar(255))";
@@ -56,6 +60,8 @@ public class SQLServerGeometryTestSetup extends JDBCGeometryTestSetup {
         sql = "INSERT INTO GEOMETRY_COLUMNS (F_TABLE_SCHEMA, F_TABLE_NAME, F_GEOMETRY_COLUMN, COORD_DIMENSION, SRID, TYPE) " + 
                 "VALUES ('', 'gtmeta','geom', 2, 4326, 'POINT')";
         run(sql);
+=======
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
     }
 
     @Override
@@ -66,6 +72,10 @@ public class SQLServerGeometryTestSetup extends JDBCGeometryTestSetup {
 
     public void setupMetadataTable(JDBCDataStore dataStore) {
         ((SQLServerDialect) dataStore.getSQLDialect()).setGeometryMetadataTable("GEOMETRY_COLUMNS");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
     }
 
 }

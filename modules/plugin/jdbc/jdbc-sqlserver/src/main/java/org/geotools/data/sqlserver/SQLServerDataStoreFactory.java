@@ -102,6 +102,11 @@ public class SQLServerDataStoreFactory extends JDBCDataStoreFactory {
     @Override
     protected JDBCDataStore createDataStoreInternal(JDBCDataStore dataStore, Map params)
             throws IOException {
+<<<<<<< HEAD
+=======
+    	
+    	// setup loose bbox
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
         SQLServerDialect dialect = (SQLServerDialect) dataStore.getSQLDialect();
     	
     	// check the geometry metadata table

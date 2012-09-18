@@ -23,8 +23,11 @@ package org.geotools.data.sqlserver;
 
 import org.geotools.jdbc.JDBCGeometryTest;
 import org.geotools.jdbc.JDBCGeometryTestSetup;
+<<<<<<< HEAD
 import org.geotools.referencing.CRS;
 import org.opengis.feature.type.GeometryDescriptor;
+=======
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -101,6 +104,7 @@ public class SQLServerGeometryTest extends JDBCGeometryTest {
         testSetup.setupMetadataTable(dataStore);
         assertEquals(GeometryCollection.class, checkGeometryType(GeometryCollection.class));
     }
+<<<<<<< HEAD
     
     public void testGeometryMetadataTable() throws Exception {
         testSetup.setupMetadataTable(dataStore);
@@ -109,5 +113,7 @@ public class SQLServerGeometryTest extends JDBCGeometryTest {
         assertEquals(Point.class, gd.getType().getBinding());
         assertEquals(4326, (int) CRS.lookupEpsgCode(gd.getCoordinateReferenceSystem(), false));
     }
+=======
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
 }

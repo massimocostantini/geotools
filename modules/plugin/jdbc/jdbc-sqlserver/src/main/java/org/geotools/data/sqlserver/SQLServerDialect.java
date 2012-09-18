@@ -95,6 +95,10 @@ public class SQLServerDialect extends BasicSQLDialect {
             put("MULTIPOLYGONM", MultiPolygon.class);
             put("GEOMETRYCOLLECTION", GeometryCollection.class);
             put("GEOMETRYCOLLECTIONM", GeometryCollection.class);
+<<<<<<< HEAD
+=======
+            put("BYTEA", byte[].class);
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
         }
     };
 
@@ -108,6 +112,10 @@ public class SQLServerDialect extends BasicSQLDialect {
             put(MultiLineString.class, "MULTILINESTRING");
             put(MultiPolygon.class, "MULTIPOLYGON");
             put(GeometryCollection.class, "GEOMETRYCOLLECTION");
+<<<<<<< HEAD
+=======
+            put(byte[].class, "BYTEA");
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
         }
     };
     
@@ -161,6 +169,7 @@ public class SQLServerDialect extends BasicSQLDialect {
             throws SQLException, IOException {
         
         String tableName = featureType.getName().getLocalPart();
+<<<<<<< HEAD
 
         Statement st = null;
         try {
@@ -234,48 +243,144 @@ public class SQLServerDialect extends BasicSQLDialect {
                                 DEFAULT_AXIS_MIN : a0.getMinimumValue()) + ", ";
                             bbox += (Double.isInfinite(a1.getMinimumValue()) ?
                                 DEFAULT_AXIS_MIN : a1.getMinimumValue()) + ", ";
+=======
+        
+        Statement st = null;
+        try {
+            st = cx.createStatement();
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
-                            bbox += (Double.isInfinite(a0.getMaximumValue()) ? 
-                                DEFAULT_AXIS_MAX : a0.getMaximumValue()) + ", ";
-                            bbox += Double.isInfinite(a1.getMaximumValue()) ?
-                                DEFAULT_AXIS_MAX : a1.getMaximumValue();
-                            bbox += ")";
+            // register all geometry columns in the database
+            for (AttributeDescriptor att : featureType
+                    .getAttributeDescriptors()) {
+                if (att instanceof GeometryDescriptor) {
+                    GeometryDescriptor gd = (GeometryDescriptor) att;
+
+                    // lookup or reverse engineer the srid
+                    int srid = -1;
+                    if (gd.getUserData().get(JDBCDataStore.JDBC_NATIVE_SRID) != null) {
+                        srid = (Integer) gd.getUserData().get(
+                                JDBCDataStore.JDBC_NATIVE_SRID);
+                    } else if (gd.getCoordinateReferenceSystem() != null) {
+                        try {
+                            Integer result = CRS.lookupEpsgCode(gd
+                                    .getCoordinateReferenceSystem(), true);
+                            if (result != null)
+                                srid = result;
+                        } catch (Exception e) {
+                            LOGGER.log(Level.FINE, "Error looking up the "
+                                    + "epsg code for metadata "
+                                    + "insertion, assuming -1", e);
                         }
                     }
+
+                    // assume 2 dimensions, but ease future customisation
+                    int dimensions = 2;
+
+                    // grab the geometry type
+                    String geomType = CLASS_TO_TYPE_MAP.get(gd.getType()
+                            .getBinding());
+                    if (geomType == null)
+                        geomType = "GEOMETRY";
+
+                    StringBuilder sqlBuilder = new StringBuilder();
                     
-                    if (bbox == null) {
-                        //no crs or could not figure out bounds
-                        continue;
-                    }
-                    StringBuffer sql = new StringBuffer("CREATE SPATIAL INDEX ");
-                    encodeTableName(featureType.getTypeName()+"_"+gd.getLocalName()+"_index", sql);
-                    sql.append( " ON ");
-                    encodeTableName(featureType.getTypeName(), sql);
-                    sql.append("(");
-                    encodeColumnName(null, gd.getLocalName(), sql);
-                    sql.append(")");
-                    sql.append( " WITH ( BOUNDING_BOX = ").append(bbox).append(")");
+                    // register the geometry type, first remove and eventual
+                    // leftover, then write out the real one
+                    sqlBuilder.append("DELETE FROM ").append(geometryMetadataTable)
+                            .append(" WHERE f_table_schema = '").append(schemaName).append("'")
+                            .append(" AND f_table_name = '").append(tableName).append("'")
+                            .append(" AND f_geometry_column = '").append(gd.getLocalName())
+                            .append("'");
+                    LOGGER.fine( sqlBuilder.toString() );
+                    st.execute( sqlBuilder.toString() );
                     
-                    LOGGER.fine(sql.toString());
-                    st.execute(sql.toString());
+                    sqlBuilder = new StringBuilder();
+                    sqlBuilder.append("INSERT INTO ").append(geometryMetadataTable)
+                            .append(" VALUES ('").append(schemaName).append("','").append(tableName)
+                            .append("',").append("'").append(gd.getLocalName()).append("',")
+                            .append(dimensions).append(",").append(srid).append(",").append("'")
+                            .append(geomType).append("')");
+                    LOGGER.fine( sqlBuilder.toString() );
+                    st.execute( sqlBuilder.toString() );
+                    
+                    
+                    String bbox = null;
+                  
+                  //get the crs, and derive a bounds
+                  //TODO: stop being lame and properly figure out the dimension and bounds, see 
+                  // oracle dialect for the proper way to do it
+                  if (gd.getCoordinateReferenceSystem() != null) { 
+                      CoordinateReferenceSystem crs = gd.getCoordinateReferenceSystem();
+                      CoordinateSystem cs = crs.getCoordinateSystem();
+                      if (cs.getDimension() == 2) {
+                          CoordinateSystemAxis a0 = cs.getAxis(0);
+                          CoordinateSystemAxis a1 = cs.getAxis(1);
+                          bbox = "(";
+                          bbox += (Double.isInfinite(a0.getMinimumValue()) ? 
+                              DEFAULT_AXIS_MIN : a0.getMinimumValue()) + ", ";
+                          bbox += (Double.isInfinite(a1.getMinimumValue()) ?
+                              DEFAULT_AXIS_MIN : a1.getMinimumValue()) + ", ";
+
+                          bbox += (Double.isInfinite(a0.getMaximumValue()) ? 
+                              DEFAULT_AXIS_MAX : a0.getMaximumValue()) + ", ";
+                          bbox += Double.isInfinite(a1.getMaximumValue()) ?
+                              DEFAULT_AXIS_MAX : a1.getMaximumValue();
+                          bbox += ")";
+                      }
+                  }
+                  
+                  if (bbox == null) {
+                      //no crs or could not figure out bounds
+                      continue;
+                  }
+                  StringBuffer sql = new StringBuffer("CREATE SPATIAL INDEX ");
+                  encodeTableName(featureType.getTypeName()+"_"+gd.getLocalName()+"_index", sql);
+                  sql.append( " ON ");
+                  encodeTableName(featureType.getTypeName(), sql);
+                  sql.append("(");
+                  encodeColumnName(null, gd.getLocalName(), sql);
+                  sql.append(")");
+                  sql.append( " WITH ( BOUNDING_BOX = ").append(bbox).append(")");
+
+                  LOGGER.fine(sql.toString());
+                  st.execute(sql.toString());
                 }
             }
             if (!cx.getAutoCommit()) {
                 cx.commit();
             }
+<<<<<<< HEAD
         } finally {
             dataStore.closeSafe(st);
         }
+=======
+         }
+	     finally {
+	    	 dataStore.closeSafe(st);
+	     }
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
     }
     
     @Override
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
     	
+<<<<<<< HEAD
     	String typeName = columnMetaData.getString("TYPE_NAME");
         
         String gType = null;
         if ("geometry".equalsIgnoreCase(typeName) && geometryMetadataTable != null) {
+=======
+        if(geometryMetadataTable == null || geometryMetadataTable.isEmpty()){
+            return null;
+        }
+
+    	String typeName = columnMetaData.getString("TYPE_NAME");
+        
+        String gType = null;
+        if ("geometry".equalsIgnoreCase(typeName)) {
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
             gType = lookupGeometryType(columnMetaData, cx, geometryMetadataTable, "f_geometry_column");
         } else {
             return null;
@@ -303,6 +408,7 @@ public class SQLServerDialect extends BasicSQLDialect {
         String columnName = columnMetaData.getString("COLUMN_NAME");
 
         // first attempt, try with the geometry metadata
+<<<<<<< HEAD
         Statement statement = null;
         ResultSet result = null;
         try {
@@ -310,6 +416,16 @@ public class SQLServerDialect extends BasicSQLDialect {
             String sqlStatement = "SELECT TYPE FROM " + gTableName + " WHERE " //
                     + (schema == null ? "" : "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' AND ") 
                     + "F_TABLE_NAME = '" + tableName + "' " //
+=======
+        Connection conn = null;
+        Statement statement = null;
+        ResultSet result = null;
+        
+        try {
+            String sqlStatement = "SELECT TYPE FROM " + gTableName + " WHERE " //
+                    + "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' " //
+                    + "AND F_TABLE_NAME = '" + tableName + "' " //
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
                     + "AND " + gColumnName + " = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
@@ -333,19 +449,28 @@ public class SQLServerDialect extends BasicSQLDialect {
     
     public Integer getGeometrySRIDfromMetadataTable(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
+<<<<<<< HEAD
         
         if(geometryMetadataTable == null) {
             return null;
         }
+=======
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
         Statement statement = null;
         ResultSet result = null;
 
         try {
+<<<<<<< HEAD
             String schema = dataStore.getDatabaseSchema();
             String sql = "SELECT SRID FROM " + geometryMetadataTable + " WHERE " //
                     + (schema == null ? "" : "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' AND ") 
                     + "F_TABLE_NAME = '" + tableName + "' ";//
+=======
+            String sql = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
+                    + "F_TABLE_SCHEMA = '" + schemaName + "' " //
+                    + "AND F_TABLE_NAME = '" + tableName + "' ";//
+>>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sql);
             statement = cx.createStatement();
