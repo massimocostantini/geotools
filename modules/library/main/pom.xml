@@ -23,7 +23,7 @@
   <!-- =========================================================== -->
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
-  <groupId>org.geotools</groupId>
+ <!-- <groupId>org.geotools</groupId> -->
   <artifactId>gt-main</artifactId>
   <packaging>jar</packaging>
   <name>Main module</name>

@@ -95,10 +95,7 @@ public class SQLServerDialect extends BasicSQLDialect {
             put("MULTIPOLYGONM", MultiPolygon.class);
             put("GEOMETRYCOLLECTION", GeometryCollection.class);
             put("GEOMETRYCOLLECTIONM", GeometryCollection.class);
-<<<<<<< HEAD
-=======
             put("BYTEA", byte[].class);
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
         }
     };
 
@@ -112,10 +109,7 @@ public class SQLServerDialect extends BasicSQLDialect {
             put(MultiLineString.class, "MULTILINESTRING");
             put(MultiPolygon.class, "MULTIPOLYGON");
             put(GeometryCollection.class, "GEOMETRYCOLLECTION");
-<<<<<<< HEAD
-=======
             put(byte[].class, "BYTEA");
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
         }
     };
     
@@ -169,8 +163,7 @@ public class SQLServerDialect extends BasicSQLDialect {
             throws SQLException, IOException {
         
         String tableName = featureType.getName().getLocalPart();
-<<<<<<< HEAD
-
+/*
         Statement st = null;
         try {
             st = cx.createStatement();
@@ -243,12 +236,10 @@ public class SQLServerDialect extends BasicSQLDialect {
                                 DEFAULT_AXIS_MIN : a0.getMinimumValue()) + ", ";
                             bbox += (Double.isInfinite(a1.getMinimumValue()) ?
                                 DEFAULT_AXIS_MIN : a1.getMinimumValue()) + ", ";
-=======
-        
+*/        
         Statement st = null;
         try {
             st = cx.createStatement();
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
             // register all geometry columns in the database
             for (AttributeDescriptor att : featureType
@@ -350,28 +341,20 @@ public class SQLServerDialect extends BasicSQLDialect {
             if (!cx.getAutoCommit()) {
                 cx.commit();
             }
-<<<<<<< HEAD
         } finally {
             dataStore.closeSafe(st);
         }
-=======
-         }
-	     finally {
-	    	 dataStore.closeSafe(st);
-	     }
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
     }
     
     @Override
     public Class<?> getMapping(ResultSet columnMetaData, Connection cx)
             throws SQLException {
     	
-<<<<<<< HEAD
-    	String typeName = columnMetaData.getString("TYPE_NAME");
+/*    	String typeName = columnMetaData.getString("TYPE_NAME");
         
         String gType = null;
         if ("geometry".equalsIgnoreCase(typeName) && geometryMetadataTable != null) {
-=======
+=======*/
         if(geometryMetadataTable == null || geometryMetadataTable.isEmpty()){
             return null;
         }
@@ -380,7 +363,6 @@ public class SQLServerDialect extends BasicSQLDialect {
         
         String gType = null;
         if ("geometry".equalsIgnoreCase(typeName)) {
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
             gType = lookupGeometryType(columnMetaData, cx, geometryMetadataTable, "f_geometry_column");
         } else {
             return null;
@@ -408,15 +390,14 @@ public class SQLServerDialect extends BasicSQLDialect {
         String columnName = columnMetaData.getString("COLUMN_NAME");
 
         // first attempt, try with the geometry metadata
-<<<<<<< HEAD
-        Statement statement = null;
+/*        Statement statement = null;
         ResultSet result = null;
         try {
             String schema = dataStore.getDatabaseSchema();
             String sqlStatement = "SELECT TYPE FROM " + gTableName + " WHERE " //
                     + (schema == null ? "" : "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' AND ") 
                     + "F_TABLE_NAME = '" + tableName + "' " //
-=======
+=======*/
         Connection conn = null;
         Statement statement = null;
         ResultSet result = null;
@@ -425,7 +406,6 @@ public class SQLServerDialect extends BasicSQLDialect {
             String sqlStatement = "SELECT TYPE FROM " + gTableName + " WHERE " //
                     + "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' " //
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
                     + "AND " + gColumnName + " = '" + columnName + "'";
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sqlStatement);
@@ -449,28 +429,24 @@ public class SQLServerDialect extends BasicSQLDialect {
     
     public Integer getGeometrySRIDfromMetadataTable(String schemaName, String tableName,
             String columnName, Connection cx) throws SQLException {
-<<<<<<< HEAD
         
-        if(geometryMetadataTable == null) {
+       /* if(geometryMetadataTable == null) {
             return null;
         }
-=======
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
+=======*/
 
         Statement statement = null;
         ResultSet result = null;
 
         try {
-<<<<<<< HEAD
-            String schema = dataStore.getDatabaseSchema();
+            /*String schema = dataStore.getDatabaseSchema();
             String sql = "SELECT SRID FROM " + geometryMetadataTable + " WHERE " //
                     + (schema == null ? "" : "F_TABLE_SCHEMA = '" + dataStore.getDatabaseSchema() + "' AND ") 
                     + "F_TABLE_NAME = '" + tableName + "' ";//
-=======
+=======*/
             String sql = "SELECT SRID FROM GEOMETRY_COLUMNS WHERE " //
                     + "F_TABLE_SCHEMA = '" + schemaName + "' " //
                     + "AND F_TABLE_NAME = '" + tableName + "' ";//
->>>>>>> 8dabe817fc37f968ea1dff771a8a2c148994927a
 
             LOGGER.log(Level.FINE, "Geometry type check; {0} ", sql);
             statement = cx.createStatement();
